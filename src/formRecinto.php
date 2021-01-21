@@ -51,10 +51,10 @@
                 </div>
                 <div class="col-sm-3">
                     <select name="Estilo">
-                        <option value="DIVERGENTE">DIVERGENTE</option>
-                        <option value="CONVERGENTE">CONVERGENTE</option>
-                        <option value="ASIMILADOR">ASIMILADOR</option>
-                        <option value="ACOMODADOR">ACOMODADOR</option>
+                        <option value="1">DIVERGENTE</option>
+                        <option value="2">CONVERGENTE</option>
+                        <option value="3">ASIMILADOR</option>
+                        <option value="4">ACOMODADOR</option>
                     </select>
                 </div>
             </div>
@@ -72,8 +72,8 @@
                 </div>
                 <div>
                     <select name="Sexo">
-                        <option value="F">Masculino</option>
-                        <option value="M">Femenino</option>
+                        <option value="1">Femenino</option>
+                        <option value="2">Masculino</option>
                     </select>
                 </div>
             </div>
@@ -85,9 +85,61 @@
         </form>
     </div>
     <?php
-        if (isset($_POST['promedioBtn'])) {
-            echo "<p>Hola post</p>";
+    //para poder calcular la distancia euclidiana de texto a caracteres, a cada uno se le asignara un valor numerico
+    if (isset($_POST['promedioBtn'])) {
+        include "db_connection.php";
+        include "calculoEuclidiano.php";
+        include "textToNum.php";
+        //creo el objeto de conexion
+        $connection = createDatabase();
+        //preparo la consulta
+        $stmt = $connection->prepare("Select * FROM EstiloSexoPromedioRecinto");
+        //definimos el modo de fecth que es la forma en como nos retornara los datos
+        //FETCH_ASSOC nos devolvera los datos en un array indexado cuyos keys son el nombre de las columnas.
+        $stmt->execute();
+        $resultArrayBD = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        //obtenemos las caracteristicas brindadas por el usuario
+        $estilo = $_POST['Estilo'];
+        $promedio = floatval($_POST['Promedio']);
+        $sexo = $_POST['Sexo'];
+
+        //creamos un arreglo formado de estos 3 valores
+        $sampleArray = array(
+            estiloToNum($estilo), $promedio, sexoToNum($sexo)
+        );
+
+        //asignamos variable para guardar el mejor valor y compararlo en cada iteracion
+        $bestSample = null;
+        //en esta variable guardaremos el recinto del registro que tenga una menor distancia euclidiana con los datos del usuario actual
+        $sampleRecinto = null;
+        //con esta variable nos aseguramos de que solo el primer valor que retorne la funcion dist() sea asignada automaticamente
+        //para que bestSample no tenga un valor de nulo
+        $primerContador = 0;
+        //Creamos un ciclo para comparar los datos del usuario actual con los guardados en la base de datos
+        foreach ($resultArrayBD as $item) {
+            $baseArray = array(
+                estiloToNum($item['Estilo']),
+                floatval($item['Promedio']),
+                sexoToNum($item['Sexo']),
+                $item['Recinto']
+
+            );
+
+            $distanciaEuclidiana = dist($sampleArray, $baseArray);
+            //nos aseguramos de tener la mejor muestra, en menor es mejor
+            if ($distanciaEuclidiana <= $bestSample || $primerContador == 0) {
+                $bestSample = $distanciaEuclidiana;
+                $sampleRecinto = $baseArray[3]; //obtiene el atributo estilo en el indice 4
+                $primerContador++;
+            }
         }
+
+        echo "<div class='container' style='border: 1px solid black;padding: 28px;'><font color='#2574a9'><font size='6'>Su recinto es: $sampleRecinto</font></font></div><br>";
+
+        $connection = null;
+    }
     ?>
 </body>
+
 </html>

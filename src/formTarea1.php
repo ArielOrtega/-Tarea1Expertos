@@ -34,12 +34,82 @@
                 P.western {
                         so-language: es-ES
                 }
+
+                input,
+                label {
+                        display: block;
+                }
                 -->
         </style>
 </head>
 
 <body>
         <?php include("../header.php");
+        ?>
+        <?php
+        if (isset($_POST['calcularBtn'])) {
+                include "db_connection.php";
+                include "calculoEuclidiano.php";
+                //creo el objeto de conexion
+                $connection = createDatabase();
+                //preparo la consulta
+                $stmt = $connection->prepare("Select * FROM DatosTarea1");
+                //definimos el modo de fecth que es la forma en como nos retornara los datos
+                //FETCH_ASSOC nos devolvera los datos en un array indexado cuyos keys son el nombre de las columnas.
+                $stmt->execute();
+                $resultArrayBD = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+                //definimos la suma de cada tecnica de aprendizale EC, RO, CA, EA
+                $EC = $_POST['c5'] + $_POST['c9'] + $_POST['c13'] + $_POST['c17'] + $_POST['c25'] + $_POST['c29'];
+                $OR = $_POST['c2'] + $_POST['c10'] + $_POST['c22'] + $_POST['c26'] + $_POST['c30'] + $_POST['c34'];
+                $CA = $_POST['c7'] + $_POST['c11'] + $_POST['c15'] + $_POST['c19'] + $_POST['c31'] + $_POST['c35'];
+                $EA = $_POST['c4'] + $_POST['c12'] + $_POST['c24'] + $_POST['c28'] + $_POST['c32'] + $_POST['c36'];
+
+                //creamos un arreglo formado de estos 4 valores
+                $sampleArray = array(
+                        $EC, $OR, $CA, $EA
+                );
+
+                //asignamos variable para guardar el mejor valor y compararlo en cada iteracion
+                $bestSample = null;
+                //en esta variable guardaremos el estilo del registro que tenga una menor distancia euclidiana con los datos del usuario actual
+                $sampleStyle = null;
+                //con esta variable nos aseguramos de que solo el primer valor que retorne la funcion dist() sea asignada automaticamente
+                //para que bestSample no tenga un valor de nulo
+                $primerContador = 0;
+                //Creamos un ciclo para comparar los datos del usuario actual con los guardados en la base de datos
+                foreach ($resultArrayBD as $item) {
+                        $baseArray = array(
+                                $item['EC'],
+                                $item['OR'],
+                                $item['CA'],
+                                $item['EA'],
+                                $item['Estilo']
+
+                        );
+
+                        $distanciaEuclidiana = dist($sampleArray, $baseArray);
+                        //nos aseguramos de tener la mejor muestra, en menor es mejor
+                        if ($distanciaEuclidiana <= $bestSample || $primerContador == 0) {
+                                $bestSample = $distanciaEuclidiana;
+                                $sampleStyle = $baseArray[4]; //obtiene el atributo estilo en el indice 4
+                                $primerContador++;
+                        }
+                }
+                echo "<div class='container' style='border: 1px solid black;padding: 28px;'><font color='#2574a9'><font size='6'>Estilo : $sampleStyle</font></font></div><br>";
+                echo "<div class='container' style='border: 1px solid black;padding: 28px;'>";
+                echo "<label for='ec'>Experimentacion Concreta</label>";
+                echo "<input id='ec' value=$EC size='30'>";
+                echo "<label for='ec'>Observacion reflexiva</label>";
+                echo "<input id='or' value=$OR size='30'>";
+                echo "<label for='ec'>Conceptualizacion abstracta</label>";
+                echo "<input id='ca' value=$CA size='30'>";
+                echo "<label for='ec'>Experimentacion activa</label>";
+                echo "<input id='ea' value=$EA size='30'></div>";
+
+
+                $connection = null;
+        }
         ?>
         <div class="container">
                 <p class="western" align="justify" lang="es-ES">
@@ -93,13 +163,7 @@
                                         número distinto al lado de cada palabra en la misma línea. </font>
                         </font>
                 </p>
-
-                <p class="western" align="justify" lang="es-ES">
-                        <font color="#ff0000">
-                                <font size="3"><b>No olvide escribir su CARNET, seleccionar género y recinto y hacer click en los botones CALCULAR, para que vea el resultado, y en el botón ENVIAR para guardarlo... Mil gracias !</b></font>
-                        </font>
-                </p>
-                <big><big><br>
+                <big><big>
                                 Yo aprendo...</big></big>
                 <form name="formTarea1.php" method="POST">
                         <table class="table" style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2">
@@ -456,94 +520,15 @@
                                         </tr>
                                 </tbody>
                         </table>
-                        <br>
-                        <input name="EC" id="EC" maxlength="12" size="30" placeholder="Experimentacion concreta" readonly>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        <input name="OR" id="OR" maxlength="18" size="30" placeholder="Observacion reflexiva" readonly>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        <input name="CA" id="CA" maxlength="18" size="30" placeholder="Conceptualizacion abstracta" readonly>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        <input name="EA" id="EA" maxlength="18" size="30" placeholder="Experimentacion activa" readonly><br>
-                        <br>
                         <font color="#ff0000">
                                 <font size="4"> ------------------</font>
                         </font><input name="calcularBtn" value="Calcular" onclick="calcular()" type="submit"><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 
                 </form>
-
-                <form action="formTarea1.php" method="POST">
-                        <input type="hidden" maxlength="3" size="3" name="CAEC">&nbsp;&nbsp;&nbsp;&nbsp;
-                        <input type="hidden" maxlength="3" size="3" name="EAOR">&nbsp;<br><br>
-
-                        ESTILO&nbsp;&nbsp; <input maxlength="12" size="12" name="ESTILOFINAL">
-                        <br>
-                        Escriba su carnet:<input type="Text" name="carnet"><br>
-                        Sexo:<select name="sex" value="Sexo">
-                                <option value="f">Femenino</option>
-                                <option value="m">Masculino</option>
-                        </select><br>
-                        Escoja su recinto:<select name="recinto" value="Recinto">
-                                <option value="p">Paraíso</option>
-                                <option value="t">Turrialba</option>
-                        </select><br>
-                        <font color="#ff0000">
-                                <font size="4"> -------------------------------------------------</font>
-                        </font><input value="ENVIAR" type="submit">
-                </form>
         </div>
 
-        <?php
-        if (isset($_POST['calcularBtn'])) {
-                include "db_connection.php";
-                include "calculoEuclidiano.php";
-                //creo el objeto de conexion
-                $connection = createDatabase();
-                //preparo la consulta
-                $stmt = $connection->prepare("Select * FROM DatosTarea1");
-                //definimos el modo de fecth que es la forma en como nos retornara los datos
-                //FETCH_ASSOC nos devolvera los datos en un array indexado cuyos keys son el nombre de las columnas.
-                $stmt->execute();
-                $resultArrayBD = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
-                //definimos la suma de cada tecnica de aprendizale EC, RO, CA, EA
-                $EC = $_POST['c5'] + $_POST['c9'] + $_POST['c13'] + $_POST['c17'] + $_POST['c25'] + $_POST['c29'];
-                $OR = $_POST['c2'] + $_POST['c10'] + $_POST['c22'] + $_POST['c26'] + $_POST['c30'] + $_POST['c34'];
-                $CA = $_POST['c7'] + $_POST['c11'] + $_POST['c15'] + $_POST['c19'] + $_POST['c31'] + $_POST['c35'];
-                $EA = $_POST['c4'] + $_POST['c12'] + $_POST['c24'] + $_POST['c28'] + $_POST['c32'] + $_POST['c36'];
-
-                //creamos un arreglo formado de estos 4 valores
-                $sampleArray = array($EC,$OR,$CA,$EA
-                );
-
-                //asignamos variable para guardar el mejor valor y compararlo en cada iteracion
-                $bestSample = null;
-                //en esta variable guardaremos el estilo del registro que tenga una menor distancia euclidiana con los datos del usuario actual
-                $sampleStyle = null;
-                //con esta variable nos aseguramos de que solo el primer valor que retorne la funcion dist() sea asignada automaticamente
-                //para que bestSample no tenga un valor de nulo
-                $primerContador = 0;
-                //Creamos un ciclo para comparar los datos del usuario actual con los guardados en la base de datos
-                foreach ($resultArrayBD as $item) {
-                        $baseArray = array(
-                                $item['EC'],
-                                $item['OR'],
-                                $item['CA'],
-                                $item['EA'],
-                                $item['Estilo']
-
-                        );
-                        
-                        $distanciaEuclidiana = dist($sampleArray, $baseArray);
-                        //nos aseguramos de tener la mejor muestra, en menor es mejor
-                        if($distanciaEuclidiana <= $bestSample || $primerContador == 0){
-                                $bestSample = $distanciaEuclidiana;
-                                $sampleStyle = $baseArray[4]; //obtiene el atributo estilo en el indice 4
-                                $primerContador++;
-                        }
-                }
-                echo "<p>Hola : $sampleStyle</p>";
-
-                $connection = null;
-        }
-        ?>
 </body>
 <script>
         function calcular() {
