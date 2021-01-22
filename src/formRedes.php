@@ -4,7 +4,7 @@
 <head>
 
     <meta content="text/html; charset=UTF-8" http-equiv="content-type">
-    <title>Recinto</title>
+    <title>Redes</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
@@ -18,24 +18,6 @@
 
 
     <meta name="generator" content="Bluefish 2.2.2">
-
-
-    <style type="text/css">
-        <!--
-        @page {
-            margin: 2cm
-        }
-
-        P {
-            margin-bottom: 0cm;
-            text-align: justify
-        }
-
-        P.western {
-            so-language: es-ES
-        }
-        -->
-    </style>
 </head>
 
 <body>
@@ -43,42 +25,51 @@
     //incluyo el header, que contiene la barra de menu, para no repetir el mismo codigo
     include("../header.php");
     ?>
-    <h2 class="container">Formulario 2: Adivinar recinto</h2>
+    <h2 class="container">Formulario 4: Adivinar estilo de aprendizaje</h2>
     <br>
     <div class="container" style="border: 1px solid black;padding: 30px;">
-        <form method="POST" action="formRecinto.php">
+        <form method="POST" action="formRedes.php">
             <div class="form-group row">
                 <div class="col-sm-3">
-                    <label>Indique su estilo de aprendizaje: </label>
-                </div>
-                <div class="col-sm-3">
-                    <select name="Estilo">
-                        <option value="1">DIVERGENTE</option>
-                        <option value="2">CONVERGENTE</option>
-                        <option value="3">ASIMILADOR</option>
-                        <option value="4">ACOMODADOR</option>
-                    </select>
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-sm-3">
-                    <label>Indique su ultimo promedio de matricula: </label>
-                </div>
-                <div class="col-sm-3">
-                    <input name="Promedio" type="number" min="0" value="10" max="10">
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-sm-3">
-                    <label>Indique su sexo:</label>
+                    <label>Indique la fiabilidad:</label>
                 </div>
                 <div>
-                    <select name="Sexo">
-                        <option value="1">Femenino</option>
-                        <option value="2">Masculino</option>
+                    <input name="Reliability" type="number" min="2" max="5" value="2">
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-3">
+                    <label>Indique el numero de enlaces:</label>
+                </div>
+                <div>
+                    <input name="NumberOfLinks" type="number" min="7" max="20" value="7">
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-3">
+                    <label>Indique la capacidad de red:</label>
+                </div>
+                <div>
+                    <select name="Capacity">
+                        <option value="1">Alta</option>
+                        <option value="2">Media</option>
+                        <option value="3">Baja</option>
                     </select>
                 </div>
             </div>
+            <div class="form-group row">
+                <div class="col-sm-3">
+                    <label>Indique el costo de red:</label>
+                </div>
+                <div>
+                    <select name="Cost">
+                        <option value="1">Alta</option>
+                        <option value="2">Media</option>
+                        <option value="3">Baja</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="form-group row">
                 <div class="col-sm-3">
                     <input name="promedioBtn" type="submit" value="Adivinar">
@@ -95,36 +86,38 @@
         //creo el objeto de conexion
         $connection = createDatabase();
         //preparo la consulta
-        $stmt = $connection->prepare("Select * FROM EstiloSexoPromedioRecinto");
+        $stmt = $connection->prepare("Select * FROM Redes");
         //definimos el modo de fecth que es la forma en como nos retornara los datos
         //FETCH_ASSOC nos devolvera los datos en un array indexado cuyos keys son el nombre de las columnas.
         $stmt->execute();
         $resultArrayBD = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
         //obtenemos las caracteristicas brindadas por el usuario
-        $estilo = $_POST['Estilo'];
-        $promedio = floatval($_POST['Promedio']);
-        $sexo = $_POST['Sexo'];
+        $Reliability = $_POST['Reliability'];
+        $NumberOfLinks = $_POST['NumberOfLinks'];
+        $Capacity = $_POST['Capacity'];
+        $Cost = $_POST['Cost'];
 
         //creamos un arreglo formado de estos 3 valores
         $sampleArray = array(
-            $estilo, $promedio, $sexo
+            $Reliability, $NumberOfLinks, $Capacity, $Cost
         );
 
         //asignamos variable para guardar el mejor valor y compararlo en cada iteracion
         $bestSample = null;
-        //en esta variable guardaremos el recinto del registro que tenga una menor distancia euclidiana con los datos del usuario actual
-        $sampleRecinto = null;
+        //en esta variable guardaremos el estilo del registro que tenga una menor distancia euclidiana con los datos del usuario actual
+        $sampleClass = null;
         //con esta variable nos aseguramos de que solo el primer valor que retorne la funcion dist() sea asignada automaticamente
         //para que bestSample no tenga un valor de nulo
         $primerContador = 0;
         //Creamos un ciclo para comparar los datos del usuario actual con los guardados en la base de datos
         foreach ($resultArrayBD as $item) {
             $baseArray = array(
-                estiloToNum($item['Estilo']),
-                floatval($item['Promedio']),
-                sexoToNum($item['Sexo']),
-                $item['Recinto']
+                $item['Reliability (R)'],
+                $item['Number of links (L)'],
+                netToNum($item['Capacity (Ca)']),
+                netToNum($item['Costo (Co)']),
+                $item['Class']
 
             );
 
@@ -132,35 +125,35 @@
             //nos aseguramos de tener la mejor muestra, en menor es mejor
             if ($distanciaEuclidiana < $bestSample || $primerContador == 0) {
                 $bestSample = $distanciaEuclidiana;
-                $sampleRecinto = $baseArray[3]; //obtiene el atributo estilo en el indice 4
+                $sampleClass = $baseArray[4]; //obtiene el atributo estilo en el indice 4
                 $primerContador++;
             }
         }
-
         //if para presentar en pantalla 'Masculino o Femenino'
-        $sexoResult = null;
-        if ($sexo == 'M') {
-            $sexoResult = 'Masculino';
-        } else {
-            $sexoResult = 'Femenino';
+        $CapacityResult = null;
+        if ($Capacity == '1') {
+            $CapacityResult = 'High';
+        } else if ($Capacity == '2'){
+            $CapacityResult = 'Medium';
+        }else{
+            $CapacityResult = 'Low';
         }
 
-        $estiloResult = null;
-        if ($estilo == 1) {
-            $estiloResult = 'DIVERGENTE';
-        } else if ($estilo == 2) {
-            $estiloResult = 'CONVERGENTE';
-        } else if ($estilo == 3) {
-            $estiloResult = 'ASIMILADOR';
-        } else if ($estilo == 4) {
-            $estiloResult = 'ACOMODADOR';
+        $CostResult = null;
+        if ($Cost == '1') {
+            $CostResult = 'High';
+        } else if ($Cost == '2'){
+            $CostResult = 'Medium';
+        }else{
+            $CostResult = 'Low';
         }
 
         //uso estos echo para poder imprimir el html con los resultados
-        echo "<div class='container' style='border: 1px solid black;padding: 28px;'><font color='#2574a9'><font size='6'>Su recinto es: $sampleRecinto</font></font><br>";
-        echo "<font size='3'>Estilo: $estiloResult</font></font><br>";
-        echo "<font size='3'>Promedio: $promedio</font></font><br>";
-        echo "<font color='#000000'><font size='3'>Sexo: $sexoResult</font></font></div><br>";
+        echo "<div class='container' style='border: 1px solid black;padding: 28px;'><font color='#2574a9'><font size='6'>Su calse de red: $sampleClass</font></font><br>";
+        echo "<font size='3'>Fiabilidad: $Reliability</font></font><br>";
+        echo "<font size='3'>Numero de enlaces: $NumberOfLinks</font></font><br>";
+        echo "<font size='3'>Capacidad: $Capacity</font></font><br>";
+        echo "<font color='#000000'><font size='3'>Costo: $Cost</font></font></div><br>";
 
         //cierro la conexion con la base de datos para no saturarla
         $connection = null;

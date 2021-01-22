@@ -10,9 +10,11 @@
                 <li class="nav-item"><a class="nav-link" href="/codigo/Tarea1Expertos/src/formSexo.php">Sexo de estudiante</a></li>
                 <li class="nav-item"><a class="nav-link" href="/codigo/Tarea1Expertos/src/formEstilo.php">Aprendizaje y recinto</a></li>
                 <li class="nav-item"><a class="nav-link" href="/codigo/Tarea1Expertos/src/formProfesor.php">Tipo de profesor</a></li>
+                <li class="nav-item"><a class="nav-link" href="/codigo/Tarea1Expertos/src/formRedes.php">Clasificacion de redes</a></li>
             </ul>
         </div>
     </nav>
 </header>
 <br>
 <br>
+<!-- Menu con diferentes links para navegar a traves de diferentes formularios -->

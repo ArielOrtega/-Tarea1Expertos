@@ -15,6 +15,7 @@
 
 <body>
   <?php
+  //incluyo el header, que contiene la barra de menu, para no repetir el mismo codigo
   include("header.php");
   ?>
 

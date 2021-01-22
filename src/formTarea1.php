@@ -18,33 +18,12 @@
 
 
         <meta name="generator" content="Bluefish 2.2.2">
-
-
-        <style type="text/css">
-                <!--
-                @page {
-                        margin: 2cm
-                }
-
-                P {
-                        margin-bottom: 0cm;
-                        text-align: justify
-                }
-
-                P.western {
-                        so-language: es-ES
-                }
-
-                input,
-                label {
-                        display: block;
-                }
-                -->
-        </style>
 </head>
 
 <body>
-        <?php include("../header.php");
+        <?php
+        //incluyo el header, que contiene la barra de menu, para no repetir el mismo codigo
+        include("../header.php");
         ?>
         <?php
         if (isset($_POST['calcularBtn'])) {
@@ -96,6 +75,7 @@
                                 $primerContador++;
                         }
                 }
+                //uso estos echo para poder imprimir el html con los resultados
                 echo "<div class='container' style='border: 1px solid black;padding: 28px;'><font color='#2574a9'><font size='6'>Estilo : $sampleStyle</font></font></div><br>";
                 echo "<div class='container' style='border: 1px solid black;padding: 28px;'>";
                 echo "<label for='ec'>Experimentacion Concreta</label>";
@@ -107,7 +87,7 @@
                 echo "<label for='ec'>Experimentacion activa</label>";
                 echo "<input id='ea' value=$EA size='30'></div>";
 
-
+                //cierro la conexion con la base de datos para no saturarla
                 $connection = null;
         }
         ?>
@@ -531,6 +511,7 @@
 
 </body>
 <script>
+        //Calculos ya brindados por el profesor, se encargan de realizar la suma para diferentes tecnicas de aprendizaje
         function calcular() {
                 ec = parseInt(document.estilo.c5.value) + parseInt(document.estilo.c9.value) + parseInt(document.estilo.c13.value) + parseInt(document.estilo.c17.value) + parseInt(document.estilo.c25.value) + parseInt(document.estilo.c29.value);
                 or = parseInt(document.estilo.c2.value) + parseInt(document.estilo.c10.value) + parseInt(document.estilo.c22.value) + parseInt(document.estilo.c26.value) + parseInt(document.estilo.c30.value) + parseInt(document.estilo.c34.value);
