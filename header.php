@@ -1,7 +1,7 @@
 <header>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">=
         <div class="navbar-header">
-            <a class="navbar-brand active" href="index.php">Tarea 1</a>
+            <a class="navbar-brand active" href="../index.php">Tarea 1</a>
         </div>
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav mr-auto">
