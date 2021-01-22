@@ -25,7 +25,7 @@
     //incluyo el header, que contiene la barra de menu, para no repetir el mismo codigo
     include("../header.php");
     ?>
-    <h2 class="container">Formulario 4: Adivinar estilo de aprendizaje</h2>
+    <h2 class="container">Formulario 6: Adivinar estilo de aprendizaje</h2>
     <br>
     <div class="container" style="border: 1px solid black;padding: 30px;">
         <form method="POST" action="formRedes.php">
